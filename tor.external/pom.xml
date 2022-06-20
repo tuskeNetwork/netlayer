@@ -4,9 +4,9 @@
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>bisq.netlayer</groupId>
+        <groupId>com.github.bisq-network.netlayer</groupId>
         <artifactId>parent</artifactId>
-        <version>0.7.2</version>
+        <version>0.7.3</version>
     </parent>
 
     <artifactId>tor.external</artifactId>
@@ -15,7 +15,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>bisq.netlayer</groupId>
+            <groupId>com.github.bisq-network.netlayer</groupId>
             <artifactId>tor</artifactId>
             <version>${project.version}</version>
         </dependency>
