@@ -35,25 +35,35 @@ various open source licenses (www.opensource.org).
 package org.berndpruenster.netlayer.tor
 
 import net.freehaven.tor.control.EventHandler
+import kotlin.concurrent.thread
+
+private const val UPLOADED = "UPLOADED"
+private const val RECEIVED = "RECEIVED"
 
 /**
- * Logs the data we get from notifications from the Tor OP. This is really just
- * meant for debugging.
+ * Manages and triggers the ready-callbacks
  */
-private const val UPLOADED = "UPLOADED"
-private const val HS_DESC = "HS_DESC"
-
 class TorEventHandler : EventHandler {
 
+    private val listenerMap = HashMap<String, () -> Unit>()
 
-    private val socketMap = HashMap<String, HiddenServiceSocket>()
-    private val listenerMap = HashMap<String, List<(socket: HiddenServiceSocket) -> Unit>>()
-
+    class HiddenServiceSocketList(private val hs: HiddenServiceSocket, private val listeners: List<(socket: HiddenServiceSocket) -> Unit>) : () -> Unit {
+        override fun invoke() {
+            listeners.forEach {
+                thread{it(hs)}
+            }
+        }
+    }
 
     fun attachReadyListeners(hs: HiddenServiceSocket, listeners: List<(socket: HiddenServiceSocket) -> Unit>) {
-        synchronized(socketMap) {
-            socketMap[hs.socketAddress.serviceName] = hs
-            listenerMap[hs.socketAddress.serviceName] = listeners
+        synchronized(listenerMap) {
+            listenerMap.put(hs.socketAddress.serviceName, HiddenServiceSocketList(hs, listeners))
+        }
+    }
+
+    fun attachHSReadyListener(serviceName: String, listener: () -> Unit) {
+        synchronized(listenerMap) {
+            listenerMap.put(serviceName, listener)
         }
     }
 
@@ -90,24 +100,38 @@ class TorEventHandler : EventHandler {
 
     override fun message(severity: String, msg: String) {
         val msg2 = "message: severity: $severity , msg: $msg"
-        logger?.debug(msg2)
+        logger?.trace(msg2)
+    }
+
+    override fun hiddenServiceEvent(type: String, msg: String) {
+        logger?.debug("hiddenService: HS_DESC $msg")
+        when(type) {
+            UPLOADED -> {
+                val hiddenServiceID = "${msg.split(" ")[1]}.onion"
+                synchronized(listenerMap) {
+                    logger?.info("Hidden Service $hiddenServiceID has been announced to the Tor network.")
+                    listenerMap[hiddenServiceID]?.run {thread(block = this)}
+                    listenerMap.remove(hiddenServiceID)
+                }
+            }
+        }
+    }
+
+    override fun hiddenServiceFailedEvent(reason: String, msg: String) {
+        logger?.debug("hiddenService: HS_DESC $msg")
+    }
+
+    override fun hiddenServiceDescriptor(descriptorId: String, descriptor: String, msg: String) {
+        logger?.debug("hiddenService: HS_DESC_CONTENT $descriptorId $descriptor, as in $msg")
+    }
+
+    override fun timeout() {
+        logger?.debug("The control connection to tor did not provide a response within one minute of waiting.")
     }
 
     override fun unrecognized(type: String, msg: String) {
         val msg2 = "unrecognized: current: $type , $msg: msg"
         logger?.debug(msg2)
-        if (type == (HS_DESC) && msg.startsWith(UPLOADED)) {
-            val hiddenServiceID = "${msg.split(" ")[1]}.onion"
-            synchronized(socketMap) {
-                val hs = socketMap[hiddenServiceID] ?: return
-                logger?.info("Hidden Service $hs is ready")
-                listenerMap[hiddenServiceID]?.forEach {
-                    it(hs)
-                }
-                socketMap.remove(hiddenServiceID)
-                listenerMap.remove(hiddenServiceID)
-            }
-        }
     }
 
 }

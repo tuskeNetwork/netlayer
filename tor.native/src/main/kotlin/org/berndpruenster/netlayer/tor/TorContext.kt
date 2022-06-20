@@ -39,7 +39,7 @@ import java.net.Socket
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.concurrent.thread
+import java.io.BufferedReader
 
 /**
  * This class encapsulates data that is handled differently in Java and ANDROID
@@ -60,23 +60,21 @@ private const val DIRECTIVE_DATA_DIRECTORY = "DataDirectory "
 private const val DIRECTIVE_COOKIE_AUTH_FILE = "CookieAuthFile "
 
 private const val OWNER = "__OwningControllerProcess"
-private const val COOKIE_TIMEOUT = 3 * 1000                                        // Milliseconds
+private const val COOKIE_TIMEOUT = 10 * 1000                                        // Milliseconds
 
 
 
 class Torrc @Throws(IOException::class) internal constructor(defaults: InputStream?, overrides: Map<String, String>?) {
 
-    @Throws(IOException::class)
-    internal constructor(defaults: InputStream, str: InputStream?) : this(defaults, parse(str))
+    @Throws(IOException::class) internal constructor(defaults: InputStream, str: InputStream?) : this(defaults,
+                                                                                                      parse(str))
 
-    @Throws(IOException::class)
-    internal constructor(defaults: InputStream, overrides: Torrc?) : this(defaults, overrides?.rc)
+    @Throws(IOException::class) internal constructor(defaults: InputStream, overrides: Torrc?) : this(defaults,
+                                                                                                      overrides?.rc)
 
-    @Throws(IOException::class)
-    constructor(src: InputStream) : this(src, str = null)
+    @Throws(IOException::class) constructor(src: InputStream) : this(src, str = null)
 
-    @Throws(IOException::class)
-    constructor(rc: LinkedHashMap<String, String>) : this(null, rc)
+    @Throws(IOException::class) constructor(rc: LinkedHashMap<String, String>) : this(null, rc)
 
     private val rc = LinkedHashMap<String, String>()
 
@@ -132,29 +130,29 @@ abstract class TorContext @Throws(IOException::class) protected constructor(val 
         private val EVENTS = listOf("CIRC", "WARN", "ERR")
 
         private fun parseBootstrap(inputStream: InputStream, latch: CountDownLatch, port: AtomicReference<Int>) {
-            thread {
-                Thread.currentThread().name = "NFO"
-                BufferedReader(inputStream.reader()).use { reader ->
-                    reader.forEachLine {
-                        logger?.debug { it }
-                        if (it.contains("Control listener listening on port ")) {
-                            port.set(Integer.parseInt(it.substring(it.lastIndexOf(" ") + 1, it.length - 1)))
-                            latch.countDown()
-                        }
-                    }
-                }
-            }
+            Thread({
+                       Thread.currentThread().name = "NFO"
+                       BufferedReader(inputStream.reader()).use { reader ->
+                           reader.forEachLine {
+                               logger?.debug { it }
+                               if (it.contains("Control listener listening on port ")) {
+                                   port.set(Integer.parseInt(it.substring(it.lastIndexOf(" ") + 1, it.length - 1)))
+                                   latch.countDown()
+                               }
+                           }
+                       }
+                   }).start()
         }
 
         private fun forwardErr(inputStream: InputStream) {
-            thread {
-                Thread.currentThread().name = "ERR"
-                BufferedReader(inputStream.reader()).use { reader ->
-                    reader.forEachLine {
-                        logger?.error { it }
-                    }
-                }
-            }
+            Thread({
+                       Thread.currentThread().name = "ERR"
+                       BufferedReader(inputStream.reader()).use { reader ->
+                           reader.forEachLine {
+                               logger?.error { it }
+                           }
+                       }
+                   }).start()
         }
     }
 
@@ -179,8 +177,25 @@ abstract class TorContext @Throws(IOException::class) protected constructor(val 
         // binary (which we currently
         // do by default, something we hope to fix with
         // https://github.com/thaliproject/Tor_Onion_Proxy_Library/issues/13
-        Thread.sleep(1000, 0)
+        for(i in 0..3) {
+            Thread.sleep(1000 * (i.toLong() + 1), 0)
 
+            // getRuntime: Returns the runtime object associated with the current Java application.
+            // exec: Executes the specified string command in a separate process.
+            val p = Runtime.getRuntime().exec(if (OsType.current.isUnixoid()) "ps -few" else (System.getenv("windir") + "\\system32\\" + "tasklist.exe /fo csv /nh"))
+            val allText = p.inputStream.bufferedReader().use(BufferedReader::readText)
+            if (!allText.contains(torExecutableFile.absolutePath))
+                break
+
+            if(2 == i && !OsType.current.isUnixoid())
+                Runtime.getRuntime().exec("TASKKILL /F /IM " + torExecutableFile.absolutePath)
+
+            if(3 == i)
+                throw IOException("Our tor binary is still in use... giving up")
+        }
+
+        // we have to wait until Java9 for this:
+        // ProcessHandle.allProcesses()
         workingDirectory.listFiles()?.forEach {
             if (it.absolutePath.startsWith(torrcFile.absolutePath)) {
                 it.delete()
@@ -230,7 +245,7 @@ abstract class TorContext @Throws(IOException::class) protected constructor(val 
                 // default. By setting this
                 // environment variable we fix that.
                 environment.put("LD_LIBRARY_PATH", workingDirectory.absolutePath)
-            //$FALL-THROUGH$
+        //$FALL-THROUGH$
             else                       -> {
             }
         }
