@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.berndpruenster.netlayer</groupId>
+    <groupId>bisq.netlayer</groupId>
     <artifactId>parent</artifactId>
-    <version>0.6.8.5</version>
+    <version>0.7.2</version>
     <packaging>pom</packaging>
 
     <name>Netlayer</name>
@@ -17,7 +17,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Maven plugins -->
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-        <tor-binary.version>6d1fd95</tor-binary.version>
+        <!-- Tor browser version 11.0.14; tor binary version: 0.4.7.7-->
+        <tor-binary.version>e1609c43cd0241872bf2ec3003699dda908324bf</tor-binary.version>
     </properties>
 
     <modules>
@@ -39,6 +40,7 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
+            <!-- TODO fork to bisq -->
             <groupId>com.github.ravn</groupId>
             <artifactId>jsocks</artifactId>
             <version>567e1cd</version>

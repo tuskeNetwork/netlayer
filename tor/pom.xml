@@ -4,9 +4,9 @@
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.berndpruenster.netlayer</groupId>
+        <groupId>bisq.netlayer</groupId>
         <artifactId>parent</artifactId>
-        <version>0.6.8.5</version>
+        <version>0.7.2</version>
     </parent>
 
     <artifactId>tor</artifactId>
@@ -21,14 +21,14 @@
             <version>${tor-binary.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.JesusMcCloud</groupId>
+            <groupId>com.github.bisq-network.jtorctl</groupId>
             <artifactId>jtorctl</artifactId>
             <version>1.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.18</version>
+            <version>1.21</version>
         </dependency>
         <dependency>
             <groupId>org.tukaani</groupId>
