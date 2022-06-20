@@ -21,7 +21,7 @@
             <version>${tor-binary.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.bisq-network.jtorctl</groupId>
+            <groupId>com.github.bisq-network</groupId>
             <artifactId>jtorctl</artifactId>
             <!-- v1.5 -->
             <version>b2a172f44edcd8deaa5ed75d936dcbb007f0d774</version>
