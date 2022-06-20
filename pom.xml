@@ -5,20 +5,19 @@
 
     <groupId>org.berndpruenster.netlayer</groupId>
     <artifactId>parent</artifactId>
-    <version>0.4.9-pre</version>
+    <version>0.6.8.5</version>
     <packaging>pom</packaging>
 
     <name>Netlayer</name>
 
     <properties>
         <!-- General -->
-        <java.version>1.6</java.version>
-        <kotlin.version>1.3.0</kotlin.version>
+        <java.version>1.8</java.version>
+        <kotlin.version>1.3.41</kotlin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Maven plugins -->
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-        <tor-binary.version>8.0.3</tor-binary.version>
-        <force-update-tor-binaries>false</force-update-tor-binaries>
+        <tor-binary.version>6d1fd95</tor-binary.version>
     </properties>
 
     <modules>
@@ -32,84 +31,22 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
-        <repository>
-            <id>tor-binary</id>
-            <url>https://raw.githubusercontent.com/JesusMcCloud/tor-binary/master/release/</url>
-        </repository>
     </repositories>
     <dependencies>
          <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib</artifactId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.guardianproject</groupId>
+            <groupId>com.github.ravn</groupId>
             <artifactId>jsocks</artifactId>
-            <version>9ae7520</version>
+            <version>567e1cd</version>
         </dependency>
         <dependency>
             <groupId>io.github.microutils</groupId>
             <artifactId>kotlin-logging</artifactId>
-            <version>1.6.10</version>
+            <version>1.5.4</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.honton.chas</groupId>
-                <artifactId>exists-maven-plugin</artifactId>
-                <version>0.0.6</version>
-                <configuration>
-                    <project>com.cedricwalter:tor-binary-windows:${tor-binary.version}</project>
-                    <artifact>tor-binary-windows-${tor-binary.version}.pom</artifact>
-                    <property>tor-binary-exists</property>
-                    <skip>${force-update-tor-binaries}</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>local</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.ant</groupId>
-                        <artifactId>ant-compress</artifactId>
-                        <version>1.4</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>fetch tor-binaries</id>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <target unless="${tor-binary-exists}">
-                                <get
-                                    src="https://github.com/JesusMcCloud/tor-binary/archive/master.zip"
-                                    dest="${project.build.directory}/tor-binary.zip"
-                                    skipexisting="true"/>
-
-                                <unzip src="${project.build.directory}/tor-binary.zip" dest="${project.build.directory}/"/>
-
-                                <exec dir="${project.build.directory}/tor-binary-master/" executable="mvn" failonerror="true">
-                                    <arg line="install -Drevision=${tor-binary.version}"/>
-                                </exec>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

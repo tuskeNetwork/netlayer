@@ -176,7 +176,7 @@ class TorSocket @JvmOverloads @Throws(IOException::class) constructor(private va
 
 
 class HiddenServiceSocket @JvmOverloads constructor(internalPort: Int,
-                                                    val hiddenServiceDir: String,
+                                                    private val hiddenServiceDir: String = "ephemeral hidden service",
                                                     val hiddenServicePort: Int = internalPort,
                                                     tor: Tor? = null) : ServerSocket() {
 
@@ -206,7 +206,7 @@ class HiddenServiceSocket @JvmOverloads constructor(internalPort: Int,
     override fun close() {
         super.close()
         try {
-            mgr.unpublishHiddenService(hiddenServiceDir)
+            mgr.unpublishHiddenService(serviceName)
         } catch (e: TorCtlException) {
             throw  IOException(e)
         }
