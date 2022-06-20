@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>bisq.netlayer</groupId>
+    <groupId>com.github.bisq-network.netlayer</groupId>
     <artifactId>parent</artifactId>
-    <version>0.7.2</version>
+    <version>0.7.3</version>
     <packaging>pom</packaging>
 
     <name>Netlayer</name>
@@ -18,7 +18,7 @@
         <!-- Maven plugins -->
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
         <!-- Tor browser version 11.0.14; tor binary version: 0.4.7.7-->
-        <tor-binary.version>e1609c43cd0241872bf2ec3003699dda908324bf</tor-binary.version>
+        <tor-binary.version>787183b147286d783a6392bb9ffcd8ba920d6fff</tor-binary.version>
     </properties>
 
     <modules>
@@ -27,12 +27,13 @@
         <module>tor.external</module>
     </modules>
 
-    <repositories>
-        <repository>
+   <repositories>
+       <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
+    
     <dependencies>
          <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -40,10 +41,10 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
-            <!-- TODO fork to bisq -->
-            <groupId>com.github.ravn</groupId>
+            <groupId>com.github.bisq-network.jsocks</groupId>
             <artifactId>jsocks</artifactId>
-            <version>567e1cd</version>
+            <!-- v0.0.2 -->
+            <version>43b004b5bcc468fb1213767853e1d8a54fd4a359</version>
         </dependency>
         <dependency>
             <groupId>io.github.microutils</groupId>
