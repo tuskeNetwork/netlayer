@@ -4,7 +4,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.berndpruenster.netlayer</groupId>
+        <groupId>bisq.netlayer</groupId>
         <artifactId>parent</artifactId>
         <version>0.6.8.5</version>
     </parent>
