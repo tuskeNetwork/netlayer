@@ -23,9 +23,10 @@ As of you, simply add `tor.native` as dependency to your project (using JitPack)
     </repositories>
 ```
 ```XML
-      <dependency>
-          <groupId>com.github.JesusMcCloud.netlayer</groupId>
-          <artifactId>tor.native</artifactId>
+
+<dependency>
+    <groupId>com.github.bisq-network.netlayer</groupId>
+    <artifactId>tor.native</artifactId>
           <version>${netlayer.version}</version>
       </dependency>
 ```
