@@ -21,6 +21,7 @@ import com.runjva.sourceforge.jsocks.protocol.SocksSocket
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.io.*
 import java.net.*
 import java.nio.channels.SocketChannel
 import java.util.*
@@ -190,8 +191,19 @@ class HiddenServiceSocket @JvmOverloads constructor(internalPort: Int,
         val (name, handler) = mgr.publishHiddenService(hiddenServiceDir, hiddenServicePort, internalPort)
         serviceName = name
         socketAddress = HiddenServiceSocketAddress(name, hiddenServicePort)
-        bind(InetSocketAddress(LOCAL_IP, internalPort))
+        bind(InetSocketAddress(if (isWhonixWorkstation()) EXTERNAL_IP else LOCAL_IP, internalPort))
         handler.attachReadyListeners(this, listeners)
+    }
+
+    private fun isWhonixWorkstation() : Boolean {
+        val testFile1 = File("/usr/share/whonix", "marker")
+        val testFile2 = File("/usr/share/anon-ws-base-files", "workstation")
+        return if (testFile1.exists() && testFile2.exists()) {
+            logger?.info("Whonix WS detected, binding to external interface.")
+            true
+        } else {
+            false
+        }
     }
 
     fun addReadyListener(listener: (socket: HiddenServiceSocket) -> Unit) {
