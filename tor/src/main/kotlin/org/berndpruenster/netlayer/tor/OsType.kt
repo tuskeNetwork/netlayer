@@ -54,7 +54,7 @@ enum class OsType { WIN,
                 when {
                     osName.contains("Windows") -> WIN
                     osName.contains("Mac")     -> MACOS
-                    osName.contains("Linux")   -> getLinuxType()
+                    osName.contains("Linux")   -> LNX64
                     else                       -> throw RuntimeException("Unsupported OS: $osName")
                 }
             }
