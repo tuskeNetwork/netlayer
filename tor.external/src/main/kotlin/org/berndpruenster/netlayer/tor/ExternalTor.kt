@@ -30,6 +30,8 @@ import kotlin.random.Random
 class ExternalTor : Tor {
     val EVENTS = listOf("CIRC", "WARN", "ERR")
 
+    private val controlHost: String
+
     private abstract class Authenticator {
         abstract fun authenticate(controlConnection: TorController)
     }
@@ -129,17 +131,33 @@ class ExternalTor : Tor {
     }
 
     @Throws(TorCtlException::class)
-    constructor(controlPort: Int) {
+    constructor(controlPort: Int) : this(LOCAL_IP, controlPort) {
+    }
+
+    @Throws(TorCtlException::class)
+    constructor(controlHost: String, controlPort: Int) {
+        this.controlHost = controlHost
         connect(controlPort, NullAuthenticator())
     }
 
     @Throws(TorCtlException::class)
-    constructor(controlPort: Int, password: String) {
+    constructor(controlPort: Int, password: String): this(LOCAL_IP, controlPort, password) {
+    }
+
+    @Throws(TorCtlException::class)
+    constructor(controlHost: String, controlPort: Int, password: String) {
+        this.controlHost = controlHost
         connect(controlPort, PasswordAuthenticator(password))
     }
 
     @Throws(TorCtlException::class)
-    constructor(controlPort: Int, cookieFile: File, useSafeCookieAuthentication: Boolean = false) {
+    constructor(controlPort: Int, cookieFile: File, useSafeCookieAuthentication: Boolean = false) :
+            this(LOCAL_IP, controlPort, cookieFile, useSafeCookieAuthentication) {
+    }
+
+    @Throws(TorCtlException::class)
+    constructor(controlHost: String, controlPort: Int, cookieFile: File, useSafeCookieAuthentication: Boolean = false) {
+        this.controlHost = controlHost
         if(useSafeCookieAuthentication)
             connect(controlPort, SafeCookieAuthenticator(cookieFile))
         else
@@ -149,7 +167,7 @@ class ExternalTor : Tor {
     private fun connect(controlPort: Int, authenticator: Authenticator) {
 
         // connect to controlPort
-        val sock = Socket(LOCAL_IP, controlPort)
+        val sock = Socket(controlHost, controlPort)
 
         // Open a control connection and authenticate using the cookie file
         torController = TorController(sock)
