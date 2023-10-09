@@ -53,7 +53,6 @@ import java.security.MessageDigest
 
 const val LOCAL_IP = "127.0.0.1"
 const val EXTERNAL_IP = "0.0.0.0"
-private const val LOCAL_ADDR_FRAGMENT = "\"" + LOCAL_IP + ":"
 private const val NET_LISTENERS_SOCKS = "net/listeners/socks"
 
 private const val STATUS_BOOTSTRAPPED = "status/bootstrap-phase"
@@ -148,7 +147,7 @@ class Control(private val con: TorController) {
         // Ipv4, Ipv6 or unix sockets
         val socksIpPorts = con.getInfo(NET_LISTENERS_SOCKS)?.split(" ")
 
-        socksIpPorts?.filter { it.contains(LOCAL_ADDR_FRAGMENT) }?.forEach {
+        socksIpPorts?.forEach {
             return Integer.parseInt(it.substring(it.lastIndexOf(":") + 1, it.length - 1))
         }
         throw IOException("No IPv4 localhost binding available!")
