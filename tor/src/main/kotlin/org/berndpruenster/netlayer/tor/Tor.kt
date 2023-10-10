@@ -126,6 +126,8 @@ class Control(private val con: TorController) {
     companion object {
         @JvmStatic
         private val EVENTS_HS = listOf("CIRC", "ORCONN", "INFO", "NOTICE", "WARN", "ERR", "HS_DESC", "HS_DESC_CONTENT")
+
+        private const val TOTAL_SEC_PER_STARTUP = 4 * 60
     }
 
     internal val proxyPort = parsePort()
@@ -159,7 +161,16 @@ class Control(private val con: TorController) {
 
     fun hsAvailable(onionUrl: String): Boolean = con.isHSAvailable(onionUrl.substring(0, onionUrl.indexOf(".")))
 
-
+    fun waitUntilBootstrapped(): Boolean {
+        for (secondsWaited in 1..TOTAL_SEC_PER_STARTUP) {
+            if (con.bootstrapped) {
+                return true
+            } else {
+                Thread.sleep(1000, 0)
+            }
+        }
+        return false
+    }
 }
 
 data class HsContainer(val hostname: String, val handler: TorEventHandler)
