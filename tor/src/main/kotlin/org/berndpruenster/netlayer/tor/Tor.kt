@@ -189,10 +189,10 @@ abstract class Tor @Throws(TorCtlException::class) protected constructor() {
         @Throws(TorCtlException::class)
         @JvmStatic
         @JvmOverloads
-        fun getProxy(proxyPort: Int, streamID: String? = null): Socks5Proxy {
+        fun getProxy(proxyHost: String, proxyPort: Int, streamID: String? = null): Socks5Proxy {
             val proxy: Socks5Proxy
             try {
-                proxy = Socks5Proxy(LOCAL_IP, proxyPort)
+                proxy = Socks5Proxy(proxyHost, proxyPort)
             } catch (e: IOException) {
                 throw TorCtlException(cause = e)
             }
@@ -226,7 +226,7 @@ abstract class Tor @Throws(TorCtlException::class) protected constructor() {
 
     @Throws(TorCtlException::class)
     @JvmOverloads
-    fun getProxy(streamID: String? = null): Socks5Proxy = Tor.getProxy(control.proxyPort, streamID)
+    fun getProxy(proxyHost: String, streamID: String? = null): Socks5Proxy = Tor.getProxy(proxyHost, control.proxyPort, streamID)
 
     abstract fun preprocessHsDirName(hsDirName: String) : File
 

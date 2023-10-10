@@ -43,20 +43,20 @@ fun main(args: Array<String>) {
         thread {
 
             System.err.println("we'll try and connect to the just-published hidden service")
-            TorSocket(socket.serviceName, socket.hiddenServicePort, streamId = "Foo")
+            TorSocket(socket.serviceName, socket.hiddenServicePort, proxyHost = "127.0.0.1", streamId = "Foo")
             System.err.println("Connected to $socket. closing socket...")
             socket.close()
             //retry connecting
             try {
 
-                TorSocket(socket.serviceName, socket.hiddenServicePort, streamId = "Foo")
+                TorSocket(socket.serviceName, socket.hiddenServicePort, proxyHost = "127.0.0.1", streamId = "Foo")
             } catch (e: Exception) {
                 System.err.println("As exptected, connection to $socket failed!")
             }
             //let's connect to some regular domains using different streams
-            TorSocket("www.google.com", 80, streamId = "FOO")
-            TorSocket("www.cnn.com", 80, streamId = "BAR")
-            TorSocket("www.google.com", 80, streamId = "BAZ")
+            TorSocket("www.google.com", 80, proxyHost = "127.0.0.1", streamId = "FOO")
+            TorSocket("www.cnn.com", 80, proxyHost = "127.0.0.1", streamId = "BAR")
+            TorSocket("www.google.com", 80, proxyHost = "127.0.0.1", streamId = "BAZ")
 
             System.exit(0)
         }

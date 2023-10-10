@@ -40,7 +40,7 @@ fun main(args: Array<String>) {
                 Thread.sleep(25000)
 
                 println("Contacting the hidden service...")
-                val externalSocket = ExternalTorSocket(9150, socket.serviceName, 10025)
+                val externalSocket = ExternalTorSocket("127.0.0.1", 9150, socket.serviceName, 10025)
                 externalSocket.outputStream.write("Hello Tor\n".toByteArray())
                 println("[Contacting the hidden service...]done")
 

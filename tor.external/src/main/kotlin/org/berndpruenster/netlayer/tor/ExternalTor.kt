@@ -197,8 +197,8 @@ class ExternalTor : Tor {
 }
 
 class ExternalTorSocket
-@JvmOverloads constructor(proxyPort: Int, private val destination: String, port: Int, streamID: String? = null) :
-        SocksSocket(Tor.getProxy(proxyPort, streamID), destination, port) {
+@JvmOverloads constructor(proxyHost: String, proxyPort: Int, private val destination: String, port: Int, streamID: String? = null) :
+        SocksSocket(Tor.getProxy(proxyHost, proxyPort, streamID), destination, port) {
     override fun getRemoteSocketAddress(): SocketAddress = HiddenServiceSocketAddress(destination, port)
 }
 

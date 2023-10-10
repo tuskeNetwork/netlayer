@@ -34,19 +34,22 @@ data class HiddenServiceSocketAddress(val serviceName: String, val hiddenService
 
 class TorSocket @JvmOverloads @Throws(IOException::class) constructor(private val destination: String,
                                                                       port: Int,
+                                                                      proxyHost: String,
                                                                       streamId: String? = null,
                                                                       numTries: Int = 5,
                                                                       tor: Tor? = null) : Socket() {
     @JvmOverloads @Throws(IOException::class) constructor(socketAddress: HiddenServiceSocketAddress,
+                                                          proxyHost: String,
                                                           streamId: String? = null,
                                                           numTries: Int = 5,
                                                           tor: Tor? = null) : this(socketAddress.serviceName,
                                                                                    socketAddress.hiddenServicePort,
+                                                                                   proxyHost,
                                                                                    streamId,
                                                                                    numTries,
                                                                                    tor)
 
-    private val socket = setup(destination, port, numTries, streamId, tor)
+    private val socket = setup(destination, port, numTries, proxyHost, streamId, tor)
 
     @Throws(IOException::class)
     override fun connect(addr: SocketAddress) = throw IOException("DONT!")
@@ -227,14 +230,14 @@ class HiddenServiceSocket @JvmOverloads constructor(internalPort: Int,
 }
 
 @Throws(IOException::class)
-private fun setup(onionUrl: String, port: Int, numTries: Int, streamID: String?, tor: Tor?): Socket {
+private fun setup(onionUrl: String, port: Int, numTries: Int, proxyHost: String, streamID: String?, tor: Tor?): Socket {
 
     val before = Calendar.getInstance().timeInMillis
     val mgr = getTorInstance(tor)
     for (i in 1..numTries) {
         try {
             logger?.debug { "trying to connect to $onionUrl:$port" }
-            val proxy = mgr.getProxy(streamID)
+            val proxy = mgr.getProxy(proxyHost, streamID)
             logger?.debug { "got proxy $proxy" }
             val ssock = SocksSocket(proxy, onionUrl, port)
 
